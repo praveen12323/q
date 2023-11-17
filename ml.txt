@@ -1,0 +1,548 @@
+LINEAR REGRESSION
+
+import numpy as np
+from sklearn.linear_model import LinearRegression
+import matplotlib.pyplot as plt
+
+# Data
+age = np.array([25,25,25,25,25,25,25,25,25,
+                32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,
+                37,37,37,37,37,37,37,37,37,37,37,37,
+                42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,
+                47,47,47,47,47,47,47,47,47,47,47,47,47,47,
+                52,52,52,52,52,52,52,52,
+                57,57,57,57,57,57,57,57,57,57,57,57,57,57,57,57,57,
+                62,62,62,62,62,62,62,62,62,62])
+chd = np.array([0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,1,0,1,0,0,0,0,0,1,0,0,1,0,0,1,1,0,1,0,1,0,0,0,1,0,1,0,1,0,0,1,0,0,1,0,1,1,0,0,1,0,1,0,1,1,1,0,0,1,0,1,1,1,1,1,0,1,1,1,1,1,1,1,1])
+
+print(len(age),len(chd))
+# Reshape age for sklearn
+age = age.reshape(-1, 1)
+
+# Create and fit the model
+model = LinearRegression()
+model.fit(age, chd)
+
+# Get the parameters
+w0 = model.intercept_
+w1 = model.coef_[0]
+
+print(f"Parameters of the model: w0 = {w0:.4f}, w1 = {w1:.4f}")
+
+OUTPUT:
+100 100
+Parameters of the model: w0 = -0.5082, w1 = 0.0202
+
+
+2.
+
+# Predicted values
+predicted_chd = model.predict(age)
+
+# Scatter plot
+plt.scatter(age, chd, label='Original Data')
+plt.plot(age, predicted_chd, color='red', label='Linear Model')
+plt.xlabel('Age')
+plt.ylabel('Coronary Heart Disease (CHD)')
+plt.legend()
+plt.show()
+
+OUTPUT: graph
+
+
+4.
+age_41 = np.array([[41]])  # Reshape for sklearn
+predicted_prob_41 = model.predict(age_41)
+
+print(f"The model predicts a probability of {predicted_prob_41[0]:.4f} for someone who is 41 years old.")
+
+OUTPUT:
+The model predicts a probability of 0.3208 for someone who is 41 years old.
+
+3.
+
+from sklearn.linear_model import LinearRegression
+
+# Given data
+X = [
+    [14.620, 226.000, 7.000],
+    [15.630, 220.000, 3.375],
+    [14.620, 217.400, 6.375],
+    [15.000, 220.000, 6.000],
+    [14.500, 226.500, 7.625],
+    [15.250, 224.100, 6.000],
+    [16.120, 220.500, 3.375],
+    [15.130, 223.500, 6.125],
+    [15.500, 217.600, 5.000],
+    [15.130, 228.500, 6.625],
+    [15.500, 230.200, 5.750],
+    [16.120, 226.500, 3.750],
+    [15.130, 226.600, 6.125],
+    [15.630, 225.600, 5.375],
+    [14.620, 223.700, 7.375],
+    [15.500, 230.000, 4.000],
+    [14.250, 224.300, 8.000],
+    [14.500, 240.500, 10.870],
+    [14.620, 217.400, 6.375],
+    [15.380, 229.700, 5.875]
+]
+
+y = [128.400, 97.520, 52.620, 98.010, 139.900, 102.600, 48.140, 109.600, 82.680, 112.600, 97.520, 59.060, 111.800, 89.090, 133.400, 66.800, 157.100, 208.400, 113.900, 101.000]
+
+# Create and fit the model
+model = LinearRegression()
+model.fit(X, y)
+
+# Get the coefficients
+coefficients = model.coef_
+intercept = model.intercept_
+
+print(f"Coefficients: {coefficients}")
+print(f"Intercept: {intercept}")
+
+
+OUTPUT:
+
+Coefficients: [-10.80154674   1.47173683  13.82944975]
+Intercept: -145.68706569825923
+4.
+
+# Define the values for prediction
+x1 = 14.5
+x2 = 220
+x3 = 5.0
+
+# Make the prediction
+predicted_hfe = model.predict([[x1, x2, x3]])
+print(f"Predicted HFE: {predicted_hfe[0]}")
+
+OUTPUT:
+
+Predicted HFE: 90.6198585843307
+
+
+K-NEAREST ALGORITHM
+
+import pandas as pd
+import numpy as np
+
+# Define the dataset
+data = {
+    'Outlook': ['Rainy', 'Rainy', 'Overcast', 'Sunny', 'Sunny', 'Sunny', 'Overcast', 'Rainy', 'Rainy', 'Sunny', 'Rainy', 'Overcast', 'Overcast', 'Sunny'],
+    'Temperature': ['Hot', 'Hot', 'Hot', 'Mild', 'Cool', 'Cool', 'Cool', 'Mild', 'Cool', 'Mild', 'Mild', 'Mild', 'Hot', 'Mild'],
+    'Humidity': ['High', 'High', 'High', 'High', 'Normal', 'Normal', 'Normal', 'High', 'Normal', 'Normal', 'Normal', 'High', 'Normal', 'High'],
+    'Windy': [False, True, False, False, False, True, True, False, False, False, True, True, False, True],
+    'Play Golf': ['No', 'No', 'Yes', 'Yes', 'Yes', 'No', 'Yes', 'No', 'Yes', 'Yes', 'Yes', 'Yes', 'Yes', 'No']
+}
+
+df = pd.DataFrame(data)
+
+def build_decision_tree(data):
+    unique_labels = data['Play Golf'].unique()
+
+    if len(unique_labels) == 1:
+        return unique_labels[0]
+
+    num_features = len(data.columns) - 1
+    best_feature = None
+    best_gain = -1
+
+    for feature in data.columns[:-1]:
+        unique_values = data[feature].unique()
+        current_entropy = calculate_entropy(data)
+        new_entropy = 0
+
+        for value in unique_values:
+            sub_data = data[data[feature] == value]
+            sub_entropy = calculate_entropy(sub_data)
+            weight = len(sub_data) / len(data)
+            new_entropy += weight * sub_entropy
+
+        information_gain = current_entropy - new_entropy
+
+        if information_gain > best_gain:
+            best_gain = information_gain
+            best_feature = feature
+
+    if best_gain == 0:
+        return data['Play Golf'].mode()[0]
+
+    node = {}
+    node[best_feature] = {}
+
+    unique_values = data[best_feature].unique()
+
+    for value in unique_values:
+        sub_data = data[data[best_feature] == value]
+        node[best_feature][value] = build_decision_tree(sub_data)
+
+    return node
+
+def calculate_entropy(data):
+    labels, counts = np.unique(data['Play Golf'], return_counts=True)
+    probabilities = counts / len(data)
+    entropy = -np.sum(probabilities * np.log2(probabilities))
+    return entropy
+
+def predict(tree, sample):
+    feature = next(iter(tree))
+    value = sample[feature]
+    prediction = tree[feature][value]
+
+    if isinstance(prediction, dict):
+        return predict(prediction, sample)
+    else:
+        return prediction
+
+# Example usage:
+tree = build_decision_tree(df)
+
+sample = {'Outlook': 'Rainy', 'Temperature': 'Mild', 'Humidity': 'High', 'Windy': False}
+prediction = predict(tree, sample)
+print(f"The predicted outcome is: {prediction}")
+
+OUTPUT:
+   The predicted outcome is: No
+
+
+
+2.
+import pandas as pd
+from sklearn.tree import DecisionTreeClassifier
+
+# Step 1: Load the dataset
+data = pd.read_csv('data4_19.csv')
+
+# Step 2: Preprocess the data
+X = data.iloc[:, :-1]  # Features (sepal length, sepal width, petal length, petal width)
+y = data.iloc[:, -1]   # Target variable (species)
+
+# Step 3: Build the Decision Tree
+clf = DecisionTreeClassifier(random_state=42)
+clf.fit(X, y)
+
+# Step 4: Make a prediction
+new_flower_measurements = [[5.2, 3.1, 1.4, 0.2]]
+predicted_species = clf.predict(new_flower_measurements)
+
+# Print the predicted species
+print(f"The predicted species of the new flower is: {predicted_species[0]}")
+
+OUTPUT:
+The predicted species of the new flower is: Iris-setosa
+
+
+MULTILAYER PERCEPTRON
+
+import numpy as np
+
+# Define the activation functions and their derivatives
+def sigmoid(x):
+    return 1 / (1 + np.exp(-x))
+
+def sigmoid_derivative(x):
+    return x * (1 - x)
+
+def tanh(x):
+    return np.tanh(x)
+
+def tanh_derivative(x):
+    return 1 - x**2
+
+def relu(x):
+    return np.maximum(0, x)
+
+def relu_derivative(x):
+    return 1. * (x > 0)
+
+# Get user input for the number of inputs, hidden layers, neurons, and activation function
+num_inputs = int(input("Enter the number of inputs: "))
+num_hidden_layers = int(input("Enter the number of hidden layers: "))
+num_neurons = int(input("Enter the number of neurons in the hidden layer: "))
+activation_function = input("Enter the activation function (sigmoid, tanh, or relu): ").lower()
+
+# Function to select the appropriate activation function and its derivative
+def select_activation_function(name):
+    if name == "sigmoid":
+        return sigmoid, sigmoid_derivative
+    elif name == "tanh":
+        return tanh, tanh_derivative
+    elif name == "relu":
+        return relu, relu_derivative
+    else:
+        raise ValueError("Invalid activation function name")
+
+# Create random initial weights for the input and hidden layers
+hidden_layer_weights = 2 * np.random.random((num_inputs, num_neurons)) - 1
+output_layer_weights = 2 * np.random.random((num_neurons, 1)) - 1
+
+# Training parameters
+learning_rate = 0.1
+num_epochs = 10000
+
+# Training data (you can replace this with your own dataset)
+X = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
+y = np.array([[0], [1], [1], [0]])
+
+# Select the activation function and its derivative based on user input
+activation_func, activation_derivative = select_activation_function(activation_function)
+
+# Training the MLP with backpropagation
+for epoch in range(num_epochs):
+    # Forward propagation
+    hidden_layer_input = np.dot(X, hidden_layer_weights)
+    hidden_layer_output = activation_func(hidden_layer_input)
+    output_layer_input = np.dot(hidden_layer_output, output_layer_weights)
+    output_layer_output = sigmoid(output_layer_input)  # sigmoid because of binary classification
+
+    # Calculate the error
+    error = y - output_layer_output
+
+    # Backpropagation
+    d_output = error * sigmoid_derivative(output_layer_output)
+    error_hidden_layer = d_output.dot(output_layer_weights.T)
+    d_hidden_layer = error_hidden_layer * activation_derivative(hidden_layer_output)
+
+    # Update weights
+    output_layer_weights += hidden_layer_output.T.dot(d_output) * learning_rate
+    hidden_layer_weights += X.T.dot(d_hidden_layer) * learning_rate
+
+# Print the final output
+print("Output after training:")
+print(output_layer_output)
+
+
+OUTPUT:
+
+Enter the number of inputs: 2
+Enter the number of hidden layers: 1
+Enter the number of neurons in the hidden layer: 2
+Enter the activation function (sigmoid, tanh, or relu): sigmoid
+Output after training:
+[[0.55056778]
+ [0.4893086 ]
+ [0.53764442]
+ [0.40140254]]
+
+
+K-MEANS CLUSTERING ALGORITHM1.
+
+1.
+
+import numpy as np
+
+def calculate_distance(point1, point2):
+    return np.linalg.norm(np.array(point1) – np.array(point2))
+
+def assign_to_centroid(data, centroids):
+    assignments = {}
+    for point in data:
+        min_distance = float('inf')
+        closest_centroid = None
+        for centroid_name, centroid_location in centroids.items():
+            distance = calculate_distance(point, centroid_location)
+            if distance < min_distance:
+                min_distance = distance
+                closest_centroid = centroid_name
+        if closest_centroid in assignments:
+            assignments[closest_centroid].append(point)
+        else:
+            assignments[closest_centroid] = [point]
+    return assignments
+
+def assign_to_centroid(data, centroids):
+    assignments = {}
+    for point in data:
+        min_distance = float('inf')
+        closest_centroid = None
+        for centroid_name, centroid_location in centroids.items():
+            distance = calculate_distance(point, centroid_location)
+            if distance < min_distance:
+                min_distance = distance
+                closest_centroid = centroid_name
+        if closest_centroid in assignments:
+            assignments[closest_centroid].append(point)
+        else:
+            assignments[closest_centroid] = [point]
+    return assignments
+
+def k_means(data, centroids, num_iterations):
+    for _ in range(num_iterations):
+        assignments = assign_to_centroid(data, centroids)
+        centroids = update_centroids(assignments)
+    return assignments, centroids
+
+# Given data and centroids
+data = [[0.34, -0.2, 1.13, 4.3], [5.1, -12.6, -7.0, 1.9], [-15.7, 0.06, -7.1, 11.2]]
+centroids = {"centroid1": [1.1, 0.2, -3.1, -0.4], "centroid2": [9.3, 6.1, -4.7, 0.
+
+# Perform K-means clustering for 2 iterations
+num_iterations = 2
+final_assignments, final_centroids = k_means(data, centroids, num_iterations)
+
+
+# Print the final assignments and centroids
+print("Final Assignments:")
+for centroid_name, assigned_points in final_assignments.items():
+    print(f"{centroid_name}: {assigned_points}")
+
+OUTPUT:
+
+
+Final Assignments:
+centroid1: [[0.34, -0.2, 1.13, 4.3], [5.1, -12.6, -7.0, 1.9], [-15.7, 0.06, -7.1, 11.2]]
+
+
+2.
+
+print("\nFinal Centroids:")
+for centroid_name, centroid_location in final_centroids.items():
+    print(f"{centroid_name}: {centroid_location}")
+
+OUTPUT:
+
+Final Centroids:
+centroid1: [-3.42, -4.246666666666666, -4.323333333333333, 5.8]
+
+
+
+Decision Tree Algorithm
+
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder, StandardScaler
+from sklearn.tree import DecisionTreeClassifier, plot_tree
+from sklearn.ensemble import RandomForestClassifier, BaggingClassifier, AdaBoostClassifier
+from sklearn.metrics import accuracy_score, confusion_matrix
+import matplotlib.pyplot as plt
+
+# Load the dataset
+data = pd.read_csv('Loan_Train.csv')
+
+# Drop rows with missing values in any column
+data.dropna(inplace=True)
+
+# Selecting features and label
+X = data[['Gender', 'Married', 'Education', 'ApplicantIncome', 'CoapplicantIncome', 'LoanAmount', 'Loan_Amount_Term', 'Credit_History', 'Property_Area']]
+y = data['Loan_Status']
+
+# Label Encoding for categorical variables
+label_encoder = LabelEncoder()
+for col in ['Gender', 'Married', 'Education', 'Property_Area']:
+    X[col] = label_encoder.fit_transform(X[col])
+
+# Feature Scaling
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+# Splitting the data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
+
+# Decision Tree
+decision_tree = DecisionTreeClassifier()
+decision_tree.fit(X_train, y_train)
+
+# Save Decision Tree as an image
+plt.figure(figsize=(20,10))
+plot_tree(decision_tree, filled=True, feature_names=X.columns, class_names=['N', 'Y'])
+plt.savefig('decision_tree.png')
+
+# Random Forest
+random_forest = RandomForestClassifier()
+random_forest.fit(X_train, y_train)
+
+# Predictions for Decision Tree and Random Forest
+dt_predictions = decision_tree.predict(X_test)
+rf_predictions = random_forest.predict(X_test)
+
+# Accuracy and Confusion matrix for Decision Tree
+dt_accuracy = accuracy_score(y_test, dt_predictions)
+dt_conf_matrix = confusion_matrix(y_test, dt_predictions)
+
+# Accuracy and Confusion matrix for Random Forest
+rf_accuracy = accuracy_score(y_test, rf_predictions)
+rf_conf_matrix = confusion_matrix(y_test, rf_predictions)
+
+# Bagging
+bagging = BaggingClassifier(base_estimator=DecisionTreeClassifier(), n_estimators=50, random_state=42)
+bagging.fit(X_train, y_train)
+
+# AdaBoost
+adaboost = AdaBoostClassifier(base_estimator=DecisionTreeClassifier(), n_estimators=50, random_state=42)
+adaboost.fit(X_train, y_train)
+
+# Predictions for Bagging and AdaBoost
+bagging_predictions = bagging.predict(X_test)
+adaboost_predictions = adaboost.predict(X_test)
+
+# Accuracy for Bagging and AdaBoost
+bagging_accuracy = accuracy_score(y_test, bagging_predictions)
+adaboost_accuracy = accuracy_score(y_test, adaboost_predictions)
+
+# Confusion matrix for Bagging and AdaBoost
+bagging_conf_matrix = confusion_matrix(y_test, bagging_predictions)
+adaboost_conf_matrix = confusion_matrix(y_test, adaboost_predictions)
+
+# Display Accuracies and Confusion Matrices
+
+# Decision Tree
+decision_tree = DecisionTreeClassifier()
+decision_tree.fit(X_train, y_train)
+dt_predictions = decision_tree.predict(X_test)
+dt_conf_matrix = confusion_matrix(y_test, dt_predictions)
+dt_accuracy = accuracy_score(y_test, dt_predictions)
+
+# Random Forest
+random_forest = RandomForestClassifier()
+random_forest.fit(X_train, y_train)
+rf_predictions = random_forest.predict(X_test)
+rf_conf_matrix = confusion_matrix(y_test, rf_predictions)
+rf_accuracy = accuracy_score(y_test, rf_predictions)
+
+# Bagging
+bagging = BaggingClassifier(base_estimator=DecisionTreeClassifier(), n_estimators=50, random_state=42)
+bagging.fit(X_train, y_train)
+bagging_predictions = bagging.predict(X_test)
+bagging_conf_matrix = confusion_matrix(y_test, bagging_predictions)
+bagging_accuracy = accuracy_score(y_test, bagging_predictions)
+
+# AdaBoost
+adaboost = AdaBoostClassifier(base_estimator=DecisionTreeClassifier(), n_estimators=50, random_state=42)
+adaboost.fit(X_train, y_train)
+adaboost_predictions = adaboost.predict(X_test)
+adaboost_conf_matrix = confusion_matrix(y_test, adaboost_predictions)
+adaboost_accuracy = accuracy_score(y_test, adaboost_predictions)
+
+# Display Accuracies and Confusion Matrices
+print("Decision Tree Accuracy:", dt_accuracy)
+print("Decision Tree Confusion Matrix:\n", dt_conf_matrix)
+
+print("Random Forest Accuracy:", rf_accuracy)
+print("Random Forest Confusion Matrix:\n", rf_conf_matrix)
+
+print("Bagging Accuracy:", bagging_accuracy)
+print("Bagging Confusion Matrix:\n", bagging_conf_matrix)
+
+print("AdaBoost Accuracy:", adaboost_accuracy)
+print("AdaBoost Confusion Matrix:\n", adaboost_conf_matrix)
+
+
+
+OUTPUT:
+
+Decision Tree Accuracy: 0.71875
+Decision Tree Confusion Matrix:
+ [[13 15]
+ [12 56]]
+Random Forest Accuracy: 0.8125
+Random Forest Confusion Matrix:
+ [[13 15]
+ [ 3 65]]
+Bagging Accuracy: 0.7708333333333334
+Bagging Confusion Matrix:
+ [[12 16]
+ [ 6 62]]
+AdaBoost Accuracy: 0.6979166666666666
+AdaBoost Confusion Matrix:
+ [[13 15]
+ [14 54]]
